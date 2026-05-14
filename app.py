@@ -35,7 +35,7 @@ CUSTOM_CSS = """
         --accent: #7B8C73;
         --accent-light: #9BAF91;
         --sidebar-bg: #F5F0EB;
-        --main-bg: #FAF8F5;
+        --main-bg: #FFFFFF;
         --card-bg: #FFFFFF;
         --text-primary: #3B352E;
         --text-secondary: #6B655E;

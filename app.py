@@ -137,6 +137,26 @@ CUSTOM_CSS = """
     /* ========================================================
        TYPOGRAPHY — Consistent Hierarchy
        ======================================================== */
+    .main-title {
+        font-size: 3.5rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.04em !important;
+        color: var(--text-primary) !important;
+        margin-bottom: 0px !important;
+        text-align: center !important;
+        line-height: 1 !important;
+    }
+
+    .main-tagline {
+        font-size: 1.2rem !important;
+        font-weight: 500 !important;
+        color: var(--primary) !important;
+        margin-top: 0px !important;
+        margin-bottom: 2rem !important;
+        text-align: center !important;
+        opacity: 0.8;
+    }
+
     h1 {
         font-size: 2rem !important;
         font-weight: 700 !important;
@@ -696,8 +716,8 @@ model = load_model()
 # HALAMAN 1: PREDIKSI PTM
 # ============================================================
 if page == "Prediksi PTM":
-    st.title("ProMod AI")
-    st.markdown(f"**Intelligent PTM Site Prediction with 1D-CNN**")
+    st.markdown("<h1 class='main-title'>ProMod AI</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='main-tagline'>Intelligent PTM Site Prediction with 1D-CNN</p>", unsafe_allow_html=True)
 
     if model is None:
         st.warning("File model best_ptm_model.keras tidak ditemukan. Menjalankan mode SIMULASI otomatis (tanpa AI asli).")

@@ -295,28 +295,35 @@ if page == "Prediksi PTM":
     if model is None:
         st.warning("File model best_ptm_model.keras tidak ditemukan. Menjalankan mode SIMULASI otomatis (tanpa AI asli).")
 
+    # Inisialisasi session state untuk sekuens jika belum ada
+    if "protein_seq" not in st.session_state:
+        st.session_state.protein_seq = ""
+    if "selected_pdb" not in st.session_state:
+        st.session_state.selected_pdb = None
+
     # Contoh protein
     st.markdown("#### Coba dengan protein contoh:")
     cols = st.columns(3)
-    selected_example = None
-    selected_pdb = None
     for idx, (nama, (seq, pdb)) in enumerate(CONTOH_PROTEIN.items()):
         with cols[idx]:
-            if st.button(f"{nama.split('(')[0].strip()}", use_container_width=True):
-                selected_example = seq
-                selected_pdb = pdb
+            if st.button(f"{nama.split('(')[0].strip()}", use_container_width=True, key=f"btn_{idx}"):
+                st.session_state.protein_seq = seq
+                st.session_state.selected_pdb = pdb
+                st.rerun()
 
     st.divider()
 
-    # Input sekuens
-    default_seq = selected_example if selected_example else ""
+    # Input sekuens menggunakan session state
     sequence_input = st.text_area(
         "Sekuens Protein (huruf kapital, satu baris)",
-        value=default_seq,
+        value=st.session_state.protein_seq,
         height=120,
         placeholder="Contoh: MEEPQSDPSVEPPLSQETFSDLWKLLPENN...",
-        help="Gunakan sekuens dari UniProt untuk hasil terbaik"
+        help="Gunakan sekuens dari UniProt untuk hasil terbaik",
+        key="main_sequence_input"
     )
+    # Update session state jika user mengetik manual
+    st.session_state.protein_seq = sequence_input
 
     col1, col2 = st.columns([1, 4])
     with col1:
@@ -412,7 +419,7 @@ if page == "Prediksi PTM":
             col_leg2.markdown("Bukan situs PTM (Merah Muda)")
 
             # Visualisasi 3D (Jika ada PDB ID)
-            pdb_id_to_show = selected_pdb
+            pdb_id_to_show = st.session_state.selected_pdb
             if pdb_id_to_show:
                 st.divider()
                 st.markdown(f"#### 🧊 Visualisasi Struktur 3D ({pdb_id_to_show})")

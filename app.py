@@ -139,7 +139,7 @@ CUSTOM_CSS = """
        ======================================================== */
     header[data-testid="stHeader"] {
         background-color: transparent !important;
-        border-bottom: 1px solid var(--border-light) !important;
+        border-bottom: none !important;
     }
 
     /* ========================================================

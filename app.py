@@ -9,6 +9,10 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 import math
+import requests
+from streamlit_lottie import st_lottie
+from stmol import showmol
+import py3Dmol
 
 # ============================================================
 # KONFIGURASI HALAMAN
@@ -78,6 +82,31 @@ CUSTOM_CSS = """
         border-radius: 0.75rem;
         padding: 5px;
     }
+
+    /* Premium Button Hover Effect */
+    div.stButton > button {
+        transition: all 0.3s ease-in-out !important;
+    }
+    div.stButton > button:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 10px 20px rgba(166, 144, 124, 0.3) !important;
+        background-color: #8D7B68 !important;
+    }
+
+    /* PTM Glow Effect */
+    .ptm-glow {
+        background: #7B8C73 !important;
+        color: white !important;
+        padding: 2px 6px !important;
+        border-radius: 4px !important;
+        font-weight: bold !important;
+        box-shadow: 0 0 15px rgba(123, 140, 115, 0.6) !important;
+        animation: glow 1.5s ease-in-out infinite alternate;
+    }
+    @keyframes glow {
+        from { box-shadow: 0 0 5px rgba(123, 140, 115, 0.4); }
+        to { box-shadow: 0 0 20px rgba(123, 140, 115, 0.8); }
+    }
 </style>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
@@ -91,16 +120,19 @@ AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY"
 AA_TO_IDX   = {aa: i for i, aa in enumerate(AMINO_ACIDS)}
 N_AA        = len(AMINO_ACIDS)
 
-# Contoh protein untuk demo
+# Contoh protein untuk demo (Nama, Sekuens, PDB_ID)
 CONTOH_PROTEIN = {
     "BRCA1 (Breast Cancer 1)": (
-        "MDLSALRVEEVQNVINAMQKILECPICLELIKEPVSTKCDHIFCKFCMLKLLNQKKGPSQCPLCKNDITKRSLQESTRFSQLVEELLKIICAFQLDTGLEYANSYNFAKKENNSPEHLKDEVSIIQSMGYRNACKESNEQVKDLKERVSPEPSTGLVNRIITQELPEQIKVSDVQHLEQSRIANQNLKNEEKMPQENSVNKSTKKSSYIDTTGRQVTQEFRQKQDEAETLILSLDLLEQVEIFKDVASELQHVFEKNHKNKNSLKPDVVLEQIVKNLKQDKEPDDFLSLSTCNPAKRSAEGQLQFVKKISTNIKVSPSSRKNQPMDLCASRQVNAERMSFTFDDPVHDLHLAELTYIESKETVSQTLGNLYGLRVQAAKLHQRVKPADFHQKLKYISNQICQEAIPKELYDYLKIHTNYQDRISKIHTKVKSDLNIHSLETAQKVKVNNRDTSIQQIRQANRFLESQIKEIQVSAETQTQHVSQQQSAQQLQEQLKTTQSTTNQSQQPQSNTQTIISRDQQKLLMAKLLQQEDQETQDEDSMKRQEAEKQQERSSQETRQRLAQLEQRQNRTEGQISAENSLEEHEFEQARQSQAAASQNLTEQLVNAQAHQVKAQEIAARKQLAEHEQKAQRALQQQKPAQEQQLQLNKFQIKQATAAELQKQLEELGLQEFMKNREQLTEELEKLQAQNQLEKMLQYYMTQQFKQQEQSQQ"
+        "MDLSALRVEEVQNVINAMQKILECPICLELIKEPVSTKCDHIFCKFCMLKLLNQKKGPSQCPLCKNDITKRSLQESTRFSQLVEELLKIICAFQLDTGLEYANSYNFAKKENNSPEHLKDEVSIIQSMGYRNACKESNEQVKDLKERVSPEPSTGLVNRIITQELPEQIKVSDVQHLEQSRIANQNLKNEEKMPQENSVNKSTKKSSYIDTTGRQVTQEFRQKQDEAETLILSLDLLEQVEIFKDVASELQHVFEKNHKNKNSLKPDVVLEQIVKNLKQDKEPDDFLSLSTCNPAKRSAEGQLQFVKKISTNIKVSPSSRKNQPMDLCASRQVNAERMSFTFDDPVHDLHLAELTYIESKETVSQTLGNLYGLRVQAAKLHQRVKPADFHQKLKYISNQICQEAIPKELYDYLKIHTNYQDRISKIHTKVKSDLNIHSLETAQKVKVNNRDTSIQQIRQANRFLESQIKEIQVSAETQTQHVSQQQSAQQLQEQLKTTQSTTNQSQQPQSNTQTIISRDQQKLLMAKLLQQEDQETQDEDSMKRQEAEKQQERSSQETRQRLAQLEQRQNRTEGQISAENSLEEHEFEQARQSQAAASQNLTEQLVNAQAHQVKAQEIAARKQLAEHEQKAQRALQQQKPAQEQQLQLNKFQIKQATAAELQKQLEELGLQEFMKNREQLTEELEKLQAQNQLEKMLQYYMTQQFKQQEQSQQ",
+        "1JNX"
     ),
     "p53 / TP53 (Tumor Suppressor)": (
-        "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYPQGLNGTVNLFRNLNKNSPKMAYQLKQKGFAFLAVLRNLKVNRQKLRSSSEGKPGAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD"
+        "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYPQGLNGTVNLFRNLNKNSPKMAYQLKQKGFAFLAVLRNLKVNRQKLRSSSEGKPGAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD",
+        "1TUP"
     ),
     "Tau Protein (Alzheimer)": (
-        "MAEPRQEFEVMEDHAGTYGLGDRKDQGGYTMHQDQEGDTDAGLKESPLQTPTEDGSEEPGSETSDAKSTPTAEDVTAPLVDEGAPGKQAAAQPHTEIPEGTTAEEAGIGDTPSLEDEAAGHVTQARMVSKSKDGTGSDDKKAKGADGKTKIATPRGAAPPGQKGQANATRIPAKTPPAPKTPPSSGEPPKSGDRSGYSSPGSPGTPGSRSRTPSLPTPPTREPKKVAVVRTPPKSPSSAKSRLQTAPVPMPDLKNVKSKIGSTENLKHQPGGGKVQIINKKLDLSNVQSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTFRENAKAKTDHGAEIVYKSPVVSGDTSPRHLSNVSSTGSIDMVDSPQLATLADEVSASLAKQGL"
+        "MAEPRQEFEVMEDHAGTYGLGDRKDQGGYTMHQDQEGDTDAGLKESPLQTPTEDGSEEPGSETSDAKSTPTAEDVTAPLVDEGAPGKQAAAQPHTEIPEGTTAEEAGIGDTPSLEDEAAGHVTQARMVSKSKDGTGSDDKKAKGADGKTKIATPRGAAPPGQKGQANATRIPAKTPPAPKTPPSSGEPPKSGDRSGYSSPGSPGTPGSRSRTPSLPTPPTREPKKVAVVRTPPKSPSSAKSRLQTAPVPMPDLKNVKSKIGSTENLKHQPGGGKVQIINKKLDLSNVQSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTFRENAKAKTDHGAEIVYKSPVVSGDTSPRHLSNVSSTGSIDMVDSPQLATLADEVSASLAKQGL",
+        "2MZ7"
     ),
 }
 
@@ -187,18 +219,34 @@ def predict_ptm(model, protein_sequence: str, target_aa: str, threshold: float =
 
 
 def render_sequence_highlight(sequence: str, ptm_positions: set, target_aa: str):
-    """Render sekuens dengan highlight warna HTML."""
+    """Render sekuens dengan highlight warna HTML dan efek glow."""
     html = "<div style='font-family: monospace; font-size: 15px; line-height: 2; word-break: break-all;'>"
     for i, aa in enumerate(sequence.upper()):
         pos = i + 1
         if aa == target_aa and pos in ptm_positions:
-            html += f"<span style='background:#7B8C73; color:white; padding:2px 4px; border-radius:4px; font-weight:bold;' title='Posisi {pos}: Situs PTM'>{aa}</span>"
+            html += f"<span class='ptm-glow' title='Posisi {pos}: Situs PTM'>{aa}</span>"
         elif aa == target_aa:
             html += f"<span style='background:#F6EBEB; color:#C08A8A; padding:2px 4px; border-radius:4px;' title='Posisi {pos}: Bukan Situs PTM'>{aa}</span>"
         else:
             html += f"<span style='color:#A89F91;'>{aa}</span>"
     html += "</div>"
     return html
+
+
+def load_lottie_url(url: str):
+    r = requests.get(url)
+    if r.status_code != 200:
+        return None
+    return r.json()
+
+
+def render_protein_3d(pdb_id):
+    """Menampilkan struktur 3D protein menggunakan stmol"""
+    view = py3Dmol.view(query=f'pdb:{pdb_id}')
+    view.setStyle({'cartoon': {'color': 'spectrum'}})
+    view.addSurface(py3Dmol.SES, {'opacity': 0.1, 'color': 'white'})
+    view.spin(True)
+    showmol(view, height=400, width=800)
 
 
 # ============================================================
@@ -251,10 +299,12 @@ if page == "Prediksi PTM":
     st.markdown("#### Coba dengan protein contoh:")
     cols = st.columns(3)
     selected_example = None
-    for idx, (nama, (seq)) in enumerate(CONTOH_PROTEIN.items()):
+    selected_pdb = None
+    for idx, (nama, (seq, pdb)) in enumerate(CONTOH_PROTEIN.items()):
         with cols[idx]:
             if st.button(f"{nama.split('(')[0].strip()}", use_container_width=True):
                 selected_example = seq
+                selected_pdb = pdb
 
     st.divider()
 
@@ -271,6 +321,9 @@ if page == "Prediksi PTM":
     col1, col2 = st.columns([1, 4])
     with col1:
         predict_btn = st.button("Jalankan Analisis", type="primary", use_container_width=True)
+    
+    if "scanning_anim" not in st.session_state:
+        st.session_state.scanning_anim = load_lottie_url("https://lottie.host/88029c7d-304b-4c4f-9556-92d37c98031d/QYw0Z8mZpP.json")
 
     if predict_btn and sequence_input.strip():
         seq = sequence_input.strip().upper()
@@ -279,7 +332,20 @@ if page == "Prediksi PTM":
         if n_target == 0:
             st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
-            with st.spinner(f"Menganalisis {len(seq)} asam amino untuk situs {target_aa}..."):
+            # Animasi Scanning
+            anim_col1, anim_col2 = st.columns([1, 2])
+            with anim_col1:
+                if st.session_state.scanning_anim:
+                    st_lottie(st.session_state.scanning_anim, height=150, key="scanning")
+            with anim_col2:
+                st.write("### 🧬 Sedang Menganalisis...")
+                progress_bar = st.progress(0)
+                for percent_complete in range(100):
+                    import time
+                    time.sleep(0.01)
+                    progress_bar.progress(percent_complete + 1)
+            
+            with st.spinner(f"Finishing analysis..."):
                 df_hasil = predict_ptm(model, seq, target_aa, threshold)
 
             n_ptm   = df_hasil["PTM"].sum()
@@ -304,7 +370,15 @@ if page == "Prediksi PTM":
             )
             col_leg1, col_leg2, _ = st.columns([1, 1, 4])
             col_leg1.markdown("Situs PTM terdeteksi (Hijau)")
-            col_leg2.markdown("Bukan PTM (Merah)")
+            col_leg2.markdown("Bukan situs PTM (Merah Muda)")
+
+            # Visualisasi 3D (Jika ada PDB ID)
+            pdb_id_to_show = selected_pdb
+            if pdb_id_to_show:
+                st.divider()
+                st.markdown(f"#### 🧊 Visualisasi Struktur 3D ({pdb_id_to_show})")
+                st.info("Gunakan mouse untuk memutar, zoom, atau menggeser struktur protein.")
+                render_protein_3d(pdb_id_to_show)
 
             # Bar chart skor
             if not df_hasil.empty:

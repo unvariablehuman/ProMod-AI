@@ -14,7 +14,7 @@ import math
 # KONFIGURASI HALAMAN
 # ============================================================
 st.set_page_config(
-    page_title="PTM Predictor",
+    page_title="ProMod AI",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -87,7 +87,6 @@ st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 # ============================================================
 WINDOW_SIZE = 31
 HALF_WINDOW = 15
-TARGET_AA   = "S"
 AMINO_ACIDS = "ACDEFGHIKLMNPQRSTVWY"
 AA_TO_IDX   = {aa: i for i, aa in enumerate(AMINO_ACIDS)}
 N_AA        = len(AMINO_ACIDS)
@@ -158,11 +157,11 @@ def pad_or_trim_sequence(seq: str) -> str:
         return "X" * pad_l + seq + "X" * pad_r
 
 
-def predict_ptm(model, protein_sequence: str, threshold: float = 0.70):
+def predict_ptm(model, protein_sequence: str, target_aa: str, threshold: float = 0.70):
     protein_sequence = protein_sequence.upper().strip()
     results = []
     for i, aa in enumerate(protein_sequence):
-        if aa != TARGET_AA:
+        if aa != target_aa:
             continue
         window = ""
         for j in range(i - HALF_WINDOW, i + HALF_WINDOW + 1):
@@ -187,14 +186,14 @@ def predict_ptm(model, protein_sequence: str, threshold: float = 0.70):
     return pd.DataFrame(results)
 
 
-def render_sequence_highlight(sequence: str, ptm_positions: set):
+def render_sequence_highlight(sequence: str, ptm_positions: set, target_aa: str):
     """Render sekuens dengan highlight warna HTML."""
     html = "<div style='font-family: monospace; font-size: 15px; line-height: 2; word-break: break-all;'>"
     for i, aa in enumerate(sequence.upper()):
         pos = i + 1
-        if aa == TARGET_AA and pos in ptm_positions:
+        if aa == target_aa and pos in ptm_positions:
             html += f"<span style='background:#7B8C73; color:white; padding:2px 4px; border-radius:4px; font-weight:bold;' title='Posisi {pos}: Situs PTM'>{aa}</span>"
-        elif aa == TARGET_AA:
+        elif aa == target_aa:
             html += f"<span style='background:#F6EBEB; color:#C08A8A; padding:2px 4px; border-radius:4px;' title='Posisi {pos}: Bukan Situs PTM'>{aa}</span>"
         else:
             html += f"<span style='color:#A89F91;'>{aa}</span>"
@@ -206,8 +205,9 @@ def render_sequence_highlight(sequence: str, ptm_positions: set):
 # SIDEBAR
 # ============================================================
 with st.sidebar:
-    st.markdown("## PTM Predictor")
+    st.markdown("## ProMod AI")
     st.markdown("**Kelompok 5 — Bioinformatika**")
+    st.caption("Intelligent PTM Site Prediction with 1D-CNN")
     st.divider()
 
     page = st.radio(
@@ -217,6 +217,11 @@ with st.sidebar:
     )
 
     st.divider()
+    target_aa = st.selectbox(
+        "Target Amino Acid",
+        ["S", "T", "Y"],
+        help="Model didesain untuk mendeteksi situs fosforilasi pada S, T, atau Y."
+    )
     threshold = st.slider(
         "Threshold Probabilitas",
         min_value=0.1, max_value=0.95,
@@ -235,8 +240,9 @@ model = load_model()
 # HALAMAN 1: PREDIKSI PTM
 # ============================================================
 if page == "Prediksi PTM":
-    st.title("Prediksi Situs PTM")
-    st.markdown("Masukkan sekuens protein untuk memprediksi situs **fosforilasi pada Serine (S)** menggunakan model 1D-CNN.")
+    st.title("ProMod AI")
+    st.markdown(f"**Intelligent PTM Site Prediction with 1D-CNN**")
+    st.markdown(f"Mendeteksi situs fosforilasi pada residu **{target_aa}** menggunakan jendela sekuens ±15 AA.")
 
     if model is None:
         st.warning("File model best_ptm_model.keras tidak ditemukan. Menjalankan mode SIMULASI otomatis (tanpa AI asli).")
@@ -268,13 +274,13 @@ if page == "Prediksi PTM":
 
     if predict_btn and sequence_input.strip():
         seq = sequence_input.strip().upper()
-        n_serine = seq.count("S")
+        n_target = seq.count(target_aa)
 
-        if n_serine == 0:
-            st.warning("Tidak ditemukan residu Serine (S) dalam sekuens.")
+        if n_target == 0:
+            st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
-            with st.spinner(f"Menganalisis {len(seq)} asam amino..."):
-                df_hasil = predict_ptm(model, seq, threshold)
+            with st.spinner(f"Menganalisis {len(seq)} asam amino untuk situs {target_aa}..."):
+                df_hasil = predict_ptm(model, seq, target_aa, threshold)
 
             n_ptm   = df_hasil["PTM"].sum()
             n_bukan = len(df_hasil) - n_ptm
@@ -283,7 +289,7 @@ if page == "Prediksi PTM":
             st.markdown("#### Ringkasan Hasil")
             c1, c2, c3, c4 = st.columns(4)
             c1.metric("Panjang Sekuens", f"{len(seq)} AA")
-            c2.metric("Total Serine (S)", n_serine)
+            c2.metric(f"Total {target_aa}", n_target)
             c3.metric("Situs PTM", int(n_ptm))
             c4.metric("Bukan PTM", int(n_bukan))
 
@@ -292,7 +298,7 @@ if page == "Prediksi PTM":
             ptm_positions = set(df_hasil[df_hasil["PTM"]]["Posisi"].tolist())
             st.markdown(
                 "<div style='background:#FFFFFF; border:1px solid #E8E3DD; border-radius:8px; padding:16px;'>"
-                + render_sequence_highlight(seq, ptm_positions)
+                + render_sequence_highlight(seq, ptm_positions, target_aa)
                 + "</div>",
                 unsafe_allow_html=True
             )

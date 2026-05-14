@@ -332,48 +332,57 @@ if page == "Prediksi PTM":
         if n_target == 0:
             st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
-            # Elegant Analysis Card
-            with st.container():
-                st.markdown(
-                    """
-                    <div style='background: white; padding: 30px; border-radius: 15px; border: 1px solid #E8E3DD; box-shadow: 0 10px 30px rgba(166,144,124,0.1); text-align: center; margin-bottom: 25px;'>
-                        <h2 style='color: #A6907C; margin-bottom: 10px;'>🧬 ProMod AI Scanning</h2>
-                        <p style='color: #8D7B68; font-style: italic;'>Menganalisis motif asam amino untuk situs PTM...</p>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-                
-                anim_col, text_col = st.columns([1, 2])
-                
-                with anim_col:
-                    if st.session_state.scanning_anim:
-                        st_lottie(st.session_state.scanning_anim, height=200, key="scanning_premium")
-                    else:
-                        st.write("✨")
-                
-                with text_col:
-                    status_text = st.empty()
-                    progress_bar = st.progress(0)
+            # Elegant Cohesive Analysis Card
+            analysis_container = st.empty()
+            
+            # Ensure animation is loaded
+            if "scanning_anim" not in st.session_state or st.session_state.scanning_anim is None:
+                st.session_state.scanning_anim = load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_m6cu9scf.json") # DNA loop yang lebih stabil
+
+            # Simulation of analysis with single UI update
+            progress_bar = None
+            status_text = None
+            
+            messages = [
+                "Initializing 1D-CNN Model...",
+                "Encoding protein sequence...",
+                "Applying convolutional filters...",
+                "Scanning for biochemical motifs...",
+                "Calculating PTM probabilities...",
+                "Finalizing predictions..."
+            ]
+
+            for i in range(101):
+                import time
+                with analysis_container.container():
+                    st.markdown(
+                        f"""
+                        <div style='background: white; padding: 40px; border-radius: 20px; border: 1px solid #E8E3DD; box-shadow: 0 15px 45px rgba(166,144,124,0.15); text-align: center;'>
+                            <h2 style='color: #A6907C; margin-bottom: 20px;'>🧬 ProMod AI Scanning</h2>
+                            <div style='display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 25px;'>
+                                <div id='lottie_container' style='width: 150px;'></div>
+                                <div style='text-align: left; flex-grow: 1;'>
+                                    <p style='color: #8D7B68; font-size: 1.1rem; margin-bottom: 5px;'><b>Status:</b> {messages[min(i // 17, 5)]}</p>
+                                    <p style='color: #A89F91; font-size: 0.9rem;'>Progress: {i}%</p>
+                                </div>
+                            </div>
+                        </div>
+                        """,
+                        unsafe_allow_html=True
+                    )
                     
-                    # Dynamic Status Messages
-                    messages = [
-                        "Initializing 1D-CNN Model...",
-                        "Encoding protein sequence...",
-                        "Applying convolutional filters...",
-                        "Scanning for biochemical motifs...",
-                        "Calculating PTM probabilities...",
-                        "Finalizing predictions..."
-                    ]
-                    
-                    for i in range(100):
-                        import time
-                        time.sleep(0.02)
-                        progress_bar.progress(i + 1)
-                        if i % 17 == 0:
-                            status_text.markdown(f"**Status:** `{messages[i // 17]}`")
+                    # Manually place Lottie and Progress below/inside via streamlit components
+                    lottie_col, space_col = st.columns([1, 2])
+                    with lottie_col:
+                        if st.session_state.scanning_anim:
+                            st_lottie(st.session_state.scanning_anim, height=150, key=f"scanning_{i}")
+                    with space_col:
+                        st.progress(i)
                 
-                st.success("✅ Analisis Selesai!")
+                time.sleep(0.01)
+            
+            analysis_container.empty()
+            st.success("✅ Analisis Selesai! Menampilkan hasil di bawah...")
             
             with st.spinner(f"Rendering results..."):
                 df_hasil = predict_ptm(model, seq, target_aa, threshold)

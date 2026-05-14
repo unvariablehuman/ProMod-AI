@@ -332,20 +332,50 @@ if page == "Prediksi PTM":
         if n_target == 0:
             st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
-            # Animasi Scanning
-            anim_col1, anim_col2 = st.columns([1, 2])
-            with anim_col1:
-                if st.session_state.scanning_anim:
-                    st_lottie(st.session_state.scanning_anim, height=150, key="scanning")
-            with anim_col2:
-                st.write("### 🧬 Sedang Menganalisis...")
-                progress_bar = st.progress(0)
-                for percent_complete in range(100):
-                    import time
-                    time.sleep(0.01)
-                    progress_bar.progress(percent_complete + 1)
+            # Elegant Analysis Card
+            with st.container():
+                st.markdown(
+                    """
+                    <div style='background: white; padding: 30px; border-radius: 15px; border: 1px solid #E8E3DD; box-shadow: 0 10px 30px rgba(166,144,124,0.1); text-align: center; margin-bottom: 25px;'>
+                        <h2 style='color: #A6907C; margin-bottom: 10px;'>🧬 ProMod AI Scanning</h2>
+                        <p style='color: #8D7B68; font-style: italic;'>Menganalisis motif asam amino untuk situs PTM...</p>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+                
+                anim_col, text_col = st.columns([1, 2])
+                
+                with anim_col:
+                    if st.session_state.scanning_anim:
+                        st_lottie(st.session_state.scanning_anim, height=200, key="scanning_premium")
+                    else:
+                        st.write("✨")
+                
+                with text_col:
+                    status_text = st.empty()
+                    progress_bar = st.progress(0)
+                    
+                    # Dynamic Status Messages
+                    messages = [
+                        "Initializing 1D-CNN Model...",
+                        "Encoding protein sequence...",
+                        "Applying convolutional filters...",
+                        "Scanning for biochemical motifs...",
+                        "Calculating PTM probabilities...",
+                        "Finalizing predictions..."
+                    ]
+                    
+                    for i in range(100):
+                        import time
+                        time.sleep(0.02)
+                        progress_bar.progress(i + 1)
+                        if i % 17 == 0:
+                            status_text.markdown(f"**Status:** `{messages[i // 17]}`")
+                
+                st.success("✅ Analisis Selesai!")
             
-            with st.spinner(f"Finishing analysis..."):
+            with st.spinner(f"Rendering results..."):
                 df_hasil = predict_ptm(model, seq, target_aa, threshold)
 
             n_ptm   = df_hasil["PTM"].sum()

@@ -248,48 +248,55 @@ CUSTOM_CSS = """
     /* ========================================================
        BUTTONS — Premium Interactive Feel
        ======================================================== */
+    /* ALL BUTTONS BASE */
     .stButton > button {
-        background-color: var(--primary) !important;
-        color: #FFFFFF !important;
-        border: none !important;
         border-radius: var(--radius-sm) !important;
         padding: 0.6rem 1.5rem !important;
         font-weight: 600 !important;
         font-size: 0.95rem !important;
-        box-shadow: var(--shadow-sm) !important;
         transition: var(--transition) !important;
         width: 100% !important;
+        box-shadow: var(--shadow-sm) !important;
     }
 
-    /* Ensure button text remains white even if inside other tags */
-    .stButton > button div, 
-    .stButton > button p, 
-    .stButton > button span {
+    /* PRIMARY BUTTON (Jalankan Analisis) */
+    .stButton > button[kind="primary"] {
+        background-color: var(--primary) !important;
+        color: #FFFFFF !important;
+        border: none !important;
+    }
+    
+    .stButton > button[kind="primary"] div,
+    .stButton > button[kind="primary"] p,
+    .stButton > button[kind="primary"] span {
         color: #FFFFFF !important;
     }
 
-    .stButton > button:hover {
-        background-color: var(--primary-dark) !important;
-        transform: translateY(-1px) !important;
-        box-shadow: var(--shadow-md) !important;
-    }
-
-    .stButton > button:active {
-        transform: translateY(0) !important;
-    }
-
-    .stButton > button[kind="primary"] {
-        background-color: var(--primary) !important;
-    }
-
-    .stButton > button[kind="secondary"] {
-        background-color: transparent !important;
+    /* SECONDARY BUTTONS (Contoh Protein) */
+    .stButton > button[kind="secondary"],
+    .stButton > button:not([kind="primary"]) {
+        background-color: #FFFFFF !important;
         color: var(--primary) !important;
         border: 1.5px solid var(--primary) !important;
     }
 
-    .stButton > button[kind="secondary"]:hover {
-        background-color: rgba(166, 144, 124, 0.08) !important;
+    .stButton > button:not([kind="primary"]) div,
+    .stButton > button:not([kind="primary"]) p,
+    .stButton > button:not([kind="primary"]) span {
+        color: var(--primary) !important;
+    }
+
+    .stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: var(--shadow-md) !important;
+    }
+
+    .stButton > button[kind="primary"]:hover {
+        background-color: var(--primary-dark) !important;
+    }
+
+    .stButton > button:not([kind="primary"]):hover {
+        background-color: rgba(166, 144, 124, 0.05) !important;
     }
 
     /* ========================================================

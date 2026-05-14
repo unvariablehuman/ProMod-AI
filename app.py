@@ -92,12 +92,20 @@ CUSTOM_CSS = """
         background: transparent !important;
     }
 
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
-        color: var(--text-primary) !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.02em !important;
+    [data-testid="stSidebar"] h2 {
+        text-align: center !important;
+        font-size: 1.8rem !important;
+        margin-bottom: 0px !important;
+        line-height: 1.2 !important;
+    }
+
+    .sidebar-tagline {
+        text-align: center !important;
+        font-size: 0.85rem !important;
+        color: var(--text-secondary) !important;
+        margin-top: 0px !important;
+        margin-bottom: 1rem !important;
+        display: block !important;
     }
 
     [data-testid="stSidebar"] .stRadio > div {
@@ -701,8 +709,7 @@ def render_protein_3d(pdb_id):
 # ============================================================
 with st.sidebar:
     st.markdown("## ProMod AI")
-    st.markdown("**Kelompok 5 — Bioinformatika**")
-    st.caption("Intelligent PTM Site Prediction with 1D-CNN")
+    st.markdown("<span class='sidebar-tagline'>Kelompok 5 — Bioinformatika<br>Intelligent PTM Site Prediction with 1D-CNN</span>", unsafe_allow_html=True)
     st.divider()
 
     page = st.radio(

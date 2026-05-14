@@ -255,15 +255,6 @@ with st.sidebar:
         label_visibility="collapsed"
     )
 
-    st.divider()
-    threshold = st.slider(
-        "Threshold Probabilitas",
-        min_value=0.1, max_value=0.95,
-        value=0.70, step=0.05,
-        help="Skor di atas threshold = Situs PTM"
-    )
-    st.caption(f"Threshold optimal berdasarkan F1-Score: **0.70**")
-
 
 # ============================================================
 # LOAD MODEL
@@ -286,32 +277,41 @@ if page == "Prediksi PTM":
     if "selected_pdb" not in st.session_state:
         st.session_state.selected_pdb = None
 
-    # Pengaturan Parameter di Halaman Utama (Bukan Sidebar)
-    c1, c2 = st.columns([1, 2])
-    with c1:
-        target_aa = st.selectbox(
-            "Target Amino Acid",
-            ["S", "T", "Y"],
-            help="Model didesain untuk mendeteksi situs fosforilasi pada S, T, atau Y."
-        )
-    with c2:
-        st.info(f"Mendeteksi situs fosforilasi pada residu **{target_aa}** menggunakan jendela sekuens ±15 AA.")
-
-    # Contoh protein
+    # 1. Contoh protein (Sekarang di atas)
     st.markdown("#### Coba dengan protein contoh:")
-    cols = st.columns(3)
+    cols_ex = st.columns(3)
     for idx, (nama, (seq, pdb)) in enumerate(CONTOH_PROTEIN.items()):
-        with cols[idx]:
+        with cols_ex[idx]:
             if st.button(f"{nama.split('(')[0].strip()}", use_container_width=True, key=f"btn_{idx}"):
                 st.session_state.protein_seq = seq
                 st.session_state.selected_pdb = pdb
-                # Update widget state directly to ensure it appears in the text area
                 st.session_state.main_input = seq
                 st.rerun()
 
     st.divider()
 
-    # Input sekuens
+    # 2. Pengaturan Parameter (Target AA & Threshold)
+    st.markdown("#### Pengaturan Analisis")
+    col_param1, col_param2 = st.columns([1, 2])
+    
+    with col_param1:
+        target_aa = st.selectbox(
+            "Target Amino Acid",
+            ["S", "T", "Y"],
+            help="Model didesain untuk mendeteksi situs fosforilasi pada S, T, atau Y."
+        )
+    
+    with col_param2:
+        threshold = st.slider(
+            "Threshold Probabilitas",
+            min_value=0.1, max_value=0.95,
+            value=0.70, step=0.05,
+            help="Skor di atas threshold dianggap sebagai situs PTM terdeteksi."
+        )
+
+    st.info(f"Mendeteksi situs fosforilasi pada residu **{target_aa}** dengan threshold skor **{threshold:.2f}**.")
+
+    # 3. Input sekuens
     sequence_input = st.text_area(
         "Sekuens Protein (huruf kapital, satu baris)",
         value=st.session_state.protein_seq,

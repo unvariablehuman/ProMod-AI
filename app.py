@@ -302,6 +302,11 @@ CUSTOM_CSS = """
         border-radius: var(--radius-sm) !important;
     }
 
+    /* Clean up the faint gray background in widget containers */
+    [data-testid="stVerticalBlock"] [data-testid="stVerticalBlock"] {
+        background-color: transparent !important;
+    }
+
     .stSlider > div > div > div > div {
         background-color: var(--primary) !important;
     }

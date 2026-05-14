@@ -250,15 +250,22 @@ CUSTOM_CSS = """
        ======================================================== */
     .stButton > button {
         background-color: var(--primary) !important;
-        color: white !important;
+        color: #FFFFFF !important;
         border: none !important;
         border-radius: var(--radius-sm) !important;
         padding: 0.6rem 1.5rem !important;
-        font-weight: 500 !important;
-        font-size: 0.9rem !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
         box-shadow: var(--shadow-sm) !important;
         transition: var(--transition) !important;
         width: 100% !important;
+    }
+
+    /* Ensure button text remains white even if inside other tags */
+    .stButton > button div, 
+    .stButton > button p, 
+    .stButton > button span {
+        color: #FFFFFF !important;
     }
 
     .stButton > button:hover {

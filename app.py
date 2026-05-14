@@ -9,8 +9,6 @@ import tensorflow as tf
 from tensorflow import keras
 import os
 import math
-import requests
-from streamlit_lottie import st_lottie
 from stmol import showmol
 import py3Dmol
 
@@ -233,16 +231,6 @@ def render_sequence_highlight(sequence: str, ptm_positions: set, target_aa: str)
     return html
 
 
-def load_lottie_url(url: str):
-    try:
-        r = requests.get(url, timeout=5)
-        if r.status_code != 200:
-            return None
-        return r.json()
-    except:
-        return None
-
-
 def render_protein_3d(pdb_id):
     """Menampilkan struktur 3D protein menggunakan stmol"""
     view = py3Dmol.view(query=f'pdb:{pdb_id}')
@@ -317,6 +305,8 @@ if page == "Prediksi PTM":
             if st.button(f"{nama.split('(')[0].strip()}", use_container_width=True, key=f"btn_{idx}"):
                 st.session_state.protein_seq = seq
                 st.session_state.selected_pdb = pdb
+                # Update widget state directly to ensure it appears in the text area
+                st.session_state.main_input = seq
                 st.rerun()
 
     st.divider()
@@ -343,13 +333,9 @@ if page == "Prediksi PTM":
         if n_target == 0:
             st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
-            # All-in-one Elegant Analysis Card
+            # All-in-one Elegant Analysis Card (Tanpa Lottie agar cepat)
             analysis_placeholder = st.empty()
             
-            # Load animation if not present
-            if "scanning_anim" not in st.session_state or st.session_state.scanning_anim is None:
-                st.session_state.scanning_anim = load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_m6cu9scf.json")
-
             messages = [
                 "Initializing 1D-CNN Model...",
                 "Encoding protein sequence...",
@@ -364,25 +350,17 @@ if page == "Prediksi PTM":
                 with analysis_placeholder.container():
                     st.markdown(
                         f"""
-                        <div style='background: white; padding: 40px; border-radius: 20px; border: 1px solid #E8E3DD; box-shadow: 0 15px 45px rgba(166,144,124,0.15); text-align: center;'>
-                            <h2 style='color: #A6907C; margin-bottom: 20px;'>🧬 ProMod AI Scanning</h2>
-                            <div style='display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 25px;'>
-                                <div style='text-align: left; flex-grow: 1;'>
-                                    <p style='color: #8D7B68; font-size: 1.1rem; margin-bottom: 5px;'><b>Status:</b> {messages[min(i // 17, 5)]}</p>
-                                    <p style='color: #A89F91; font-size: 0.9rem;'>Progress: {i}%</p>
-                                </div>
+                        <div style='background: white; padding: 30px; border-radius: 20px; border: 1px solid #E8E3DD; box-shadow: 0 15px 45px rgba(166,144,124,0.15); text-align: center;'>
+                            <h2 style='color: #A6907C; margin-bottom: 15px;'>🧬 ProMod AI Scanning</h2>
+                            <div style='text-align: left; margin-bottom: 10px;'>
+                                <p style='color: #8D7B68; font-size: 1.1rem; margin-bottom: 5px;'><b>Status:</b> {messages[min(i // 17, 5)]}</p>
+                                <p style='color: #A89F91; font-size: 0.9rem;'>Progress: {i}%</p>
                             </div>
                         </div>
                         """,
                         unsafe_allow_html=True
                     )
-                    # Use smaller height for inline lottie
-                    l_col, p_col = st.columns([1, 3])
-                    with l_col:
-                        if st.session_state.scanning_anim:
-                            st_lottie(st.session_state.scanning_anim, height=100, key=f"scan_lottie_{i}")
-                    with p_col:
-                        st.progress(i)
+                    st.progress(i)
                 time.sleep(0.01)
             
             analysis_placeholder.empty()

@@ -7,8 +7,6 @@ seaborn
 scikit-learn
 stmol
 py3Dmol
-streamlit-lottie
-requests
 ipywidgets
 ipython
 ipython_genutils

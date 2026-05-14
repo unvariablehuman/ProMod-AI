@@ -26,79 +26,80 @@ CUSTOM_CSS = """
     /* Elegant Mocha Theme for Streamlit */
     :root {
         --primary-color: #A6907C;
-        --bg-color: #FDFBF7;
-        --text-color: #3B352E;
-        --sidebar-bg: #FFFFFF;
+        --sidebar-bg: #F3EEEA; /* Soft Mocha */
+        --main-bg: #FFFFFF;    /* Clean White */
+        --text-dark: #3B352E;
     }
     
-    header[data-testid="stHeader"] {
-        background-color: transparent !important;
-    }
-    
+    /* Global Background */
     .stApp {
-        background-color: var(--bg-color) !important;
-        background-image: radial-gradient(at 0% 0%, rgba(166, 144, 124, 0.05) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(166, 144, 124, 0.05) 0px, transparent 50%);
-        color: var(--text-color) !important;
+        background-color: var(--main-bg) !important;
+        color: var(--text-dark) !important;
         font-family: 'Inter', -apple-system, sans-serif !important;
     }
+
+    /* Sidebar Background & Style */
     [data-testid="stSidebar"] {
         background-color: var(--sidebar-bg) !important;
         border-right: 1px solid #E8E3DD;
     }
+    
+    /* Header transparency */
+    header[data-testid="stHeader"] {
+        background-color: transparent !important;
+    }
+    
+    /* Text Styles */
     h1, h2, h3, h4, h5, h6, p, label, span {
-        color: var(--text-color) !important;
+        color: var(--text-dark) !important;
     }
     
     .stMarkdown p, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
-        color: var(--text-color) !important;
+        color: var(--text-dark) !important;
     }
     
     /* Table headers */
     .stDataFrame th {
         background-color: #F2ECE5 !important;
-        color: var(--text-color) !important;
+        color: var(--text-dark) !important;
     }
     
+    /* Buttons */
     .stButton button {
         background-color: var(--primary-color) !important;
         color: white !important;
         border: none !important;
-        border-radius: 0.5rem !important;
+        border-radius: 0.75rem !important;
         box-shadow: 0 4px 12px rgba(166, 144, 124, 0.2) !important;
-        transition: all 0.2s;
+        transition: all 0.3s ease-in-out !important;
     }
     .stButton button:hover {
         background-color: #8D7B68 !important;
-        transform: translateY(-2px);
+        transform: scale(1.05) !important;
+        box-shadow: 0 10px 20px rgba(166, 144, 124, 0.3) !important;
     }
+
     [data-testid="stMetricValue"] {
         color: var(--primary-color) !important;
     }
-    /* Card-like wrappers */
+
+    /* Card-like wrappers (More subtle on white) */
     div[data-testid="stVerticalBlock"] > div {
-        background: rgba(255, 255, 255, 0.5);
-        border-radius: 0.75rem;
-        padding: 5px;
+        background: #FDFBF7;
+        border: 1px solid #F0EBE5;
+        border-radius: 1rem;
+        padding: 10px;
+        margin-bottom: 10px;
     }
 
-    /* Premium Button Hover Effect */
-    div.stButton > button {
-        transition: all 0.3s ease-in-out !important;
-    }
-    div.stButton > button:hover {
-        transform: scale(1.05) !important;
-        box-shadow: 0 10px 20px rgba(166, 144, 124, 0.3) !important;
-        background-color: #8D7B68 !important;
-    }
-
-    /* PTM Glow Effect */
+    /* PTM Glow Effect (Optimized for white bg) */
     .ptm-glow {
         background: #7B8C73 !important;
         color: white !important;
-        padding: 2px 6px !important;
-        border-radius: 4px !important;
+        padding: 2px 8px !important;
+        border-radius: 6px !important;
         font-weight: bold !important;
-        box-shadow: 0 0 15px rgba(123, 140, 115, 0.6) !important;
+        box-shadow: 0 4px 10px rgba(123, 140, 115, 0.4) !important;
         animation: glow 1.5s ease-in-out infinite alternate;
     }
     @keyframes glow {

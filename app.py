@@ -234,10 +234,13 @@ def render_sequence_highlight(sequence: str, ptm_positions: set, target_aa: str)
 
 
 def load_lottie_url(url: str):
-    r = requests.get(url)
-    if r.status_code != 200:
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except:
         return None
-    return r.json()
 
 
 def render_protein_3d(pdb_id):
@@ -265,11 +268,6 @@ with st.sidebar:
     )
 
     st.divider()
-    target_aa = st.selectbox(
-        "Target Amino Acid",
-        ["S", "T", "Y"],
-        help="Model didesain untuk mendeteksi situs fosforilasi pada S, T, atau Y."
-    )
     threshold = st.slider(
         "Threshold Probabilitas",
         min_value=0.1, max_value=0.95,
@@ -290,16 +288,26 @@ model = load_model()
 if page == "Prediksi PTM":
     st.title("ProMod AI")
     st.markdown(f"**Intelligent PTM Site Prediction with 1D-CNN**")
-    st.markdown(f"Mendeteksi situs fosforilasi pada residu **{target_aa}** menggunakan jendela sekuens ±15 AA.")
 
     if model is None:
         st.warning("File model best_ptm_model.keras tidak ditemukan. Menjalankan mode SIMULASI otomatis (tanpa AI asli).")
 
-    # Inisialisasi session state untuk sekuens jika belum ada
+    # Session State Logic
     if "protein_seq" not in st.session_state:
         st.session_state.protein_seq = ""
     if "selected_pdb" not in st.session_state:
         st.session_state.selected_pdb = None
+
+    # Pengaturan Parameter di Halaman Utama (Bukan Sidebar)
+    c1, c2 = st.columns([1, 2])
+    with c1:
+        target_aa = st.selectbox(
+            "Target Amino Acid",
+            ["S", "T", "Y"],
+            help="Model didesain untuk mendeteksi situs fosforilasi pada S, T, atau Y."
+        )
+    with c2:
+        st.info(f"Mendeteksi situs fosforilasi pada residu **{target_aa}** menggunakan jendela sekuens ±15 AA.")
 
     # Contoh protein
     st.markdown("#### Coba dengan protein contoh:")
@@ -313,24 +321,20 @@ if page == "Prediksi PTM":
 
     st.divider()
 
-    # Input sekuens menggunakan session state
+    # Input sekuens
     sequence_input = st.text_area(
         "Sekuens Protein (huruf kapital, satu baris)",
         value=st.session_state.protein_seq,
         height=120,
         placeholder="Contoh: MEEPQSDPSVEPPLSQETFSDLWKLLPENN...",
         help="Gunakan sekuens dari UniProt untuk hasil terbaik",
-        key="main_sequence_input"
+        key="main_input"
     )
-    # Update session state jika user mengetik manual
     st.session_state.protein_seq = sequence_input
 
     col1, col2 = st.columns([1, 4])
     with col1:
         predict_btn = st.button("Jalankan Analisis", type="primary", use_container_width=True)
-    
-    if "scanning_anim" not in st.session_state:
-        st.session_state.scanning_anim = load_lottie_url("https://lottie.host/88029c7d-304b-4c4f-9556-92d37c98031d/QYw0Z8mZpP.json")
 
     if predict_btn and sequence_input.strip():
         seq = sequence_input.strip().upper()
@@ -339,17 +343,13 @@ if page == "Prediksi PTM":
         if n_target == 0:
             st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
-            # Elegant Cohesive Analysis Card
-            analysis_container = st.empty()
+            # All-in-one Elegant Analysis Card
+            analysis_placeholder = st.empty()
             
-            # Ensure animation is loaded
+            # Load animation if not present
             if "scanning_anim" not in st.session_state or st.session_state.scanning_anim is None:
-                st.session_state.scanning_anim = load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_m6cu9scf.json") # DNA loop yang lebih stabil
+                st.session_state.scanning_anim = load_lottie_url("https://assets5.lottiefiles.com/packages/lf20_m6cu9scf.json")
 
-            # Simulation of analysis with single UI update
-            progress_bar = None
-            status_text = None
-            
             messages = [
                 "Initializing 1D-CNN Model...",
                 "Encoding protein sequence...",
@@ -361,13 +361,12 @@ if page == "Prediksi PTM":
 
             for i in range(101):
                 import time
-                with analysis_container.container():
+                with analysis_placeholder.container():
                     st.markdown(
                         f"""
                         <div style='background: white; padding: 40px; border-radius: 20px; border: 1px solid #E8E3DD; box-shadow: 0 15px 45px rgba(166,144,124,0.15); text-align: center;'>
                             <h2 style='color: #A6907C; margin-bottom: 20px;'>🧬 ProMod AI Scanning</h2>
                             <div style='display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 25px;'>
-                                <div id='lottie_container' style='width: 150px;'></div>
                                 <div style='text-align: left; flex-grow: 1;'>
                                     <p style='color: #8D7B68; font-size: 1.1rem; margin-bottom: 5px;'><b>Status:</b> {messages[min(i // 17, 5)]}</p>
                                     <p style='color: #A89F91; font-size: 0.9rem;'>Progress: {i}%</p>
@@ -377,21 +376,19 @@ if page == "Prediksi PTM":
                         """,
                         unsafe_allow_html=True
                     )
-                    
-                    # Manually place Lottie and Progress below/inside via streamlit components
-                    lottie_col, space_col = st.columns([1, 2])
-                    with lottie_col:
+                    # Use smaller height for inline lottie
+                    l_col, p_col = st.columns([1, 3])
+                    with l_col:
                         if st.session_state.scanning_anim:
-                            st_lottie(st.session_state.scanning_anim, height=150, key=f"scanning_{i}")
-                    with space_col:
+                            st_lottie(st.session_state.scanning_anim, height=100, key=f"scan_lottie_{i}")
+                    with p_col:
                         st.progress(i)
-                
                 time.sleep(0.01)
             
-            analysis_container.empty()
-            st.success("✅ Analisis Selesai! Menampilkan hasil di bawah...")
-            
-            with st.spinner(f"Rendering results..."):
+            analysis_placeholder.empty()
+            st.success("✅ Analisis Selesai! Menampilkan hasil...")
+
+            with st.spinner(f"Menganalisis {len(seq)} asam amino..."):
                 df_hasil = predict_ptm(model, seq, target_aa, threshold)
 
             n_ptm   = df_hasil["PTM"].sum()

@@ -649,8 +649,7 @@ CUSTOM_CSS = """
 
 <!-- Floating Mascot -->
 <div class="cat-container">
-    <img src="https://media.tenor.com/nthqT6mfB5gAAAAj/hearts-love.gif" width="100" style="vertical-align: middle;">
-    <img src="https://i.pinimg.com/originals/ca/06/67/ca06677fe3ced8251fd82e12016a51a4.gif" width="80" style="vertical-align: middle; margin-left: -20px;">
+    <img src="https://media.tenor.com/nthqT6mfB5gAAAAj/hearts-love.gif" width="100">
 </div>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
@@ -786,7 +785,7 @@ with st.sidebar:
 
     st.markdown("""
     <div class='sidebar-footer'>
-        <b>Kelompok 5 — Bioinformatika</b><br>
+        <b>Kelompok 5 — Computational Biology</b><br>
         BINUS University © 2024
     </div>
     """, unsafe_allow_html=True)
@@ -884,7 +883,7 @@ if page == "Deskripsi Model":
 
     ---
     """)
-    st.caption("Kelompok 5 — Final Project Bioinformatika | Dataset: dbPTM")
+    st.caption("Kelompok 5 — Final Project Computational Biology | Dataset: dbPTM")
 
 
 # ============================================================

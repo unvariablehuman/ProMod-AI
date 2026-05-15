@@ -728,7 +728,7 @@ with st.sidebar:
 
     page = st.radio(
         "Navigasi",
-        ["Prediksi PTM", "Evaluasi Model", "Tentang Model"],
+        ["Deskripsi Model", "Prediksi PTM", "Evaluasi Model"],
         label_visibility="collapsed"
     )
 
@@ -739,9 +739,99 @@ with st.sidebar:
 model = load_model()
 
 # ============================================================
-# HALAMAN 1: PREDIKSI PTM
+# HALAMAN: DESKRIPSI MODEL
 # ============================================================
-if page == "Prediksi PTM":
+if page == "Deskripsi Model":
+    st.markdown("<h1 class='main-title'>Deskripsi Model</h1>", unsafe_allow_html=True)
+    st.markdown("<p class='main-tagline'>Mengenal ProMod AI dan Teknologi di Baliknya</p>", unsafe_allow_html=True)
+
+    st.markdown("""
+    ## Post-Translational Modification (PTM)
+
+    **PTM** adalah perubahan kimiawi pada protein setelah proses translasi oleh ribosom.
+    Salah satu jenis PTM yang paling umum adalah **fosforilasi** — penambahan gugus fosfat
+    pada residu asam amino tertentu (Serine, Threonine, atau Tyrosine).
+
+    Fosforilasi berperan sebagai *sakelar biologis* yang mengatur sinyal seluler dan terlibat
+    dalam berbagai penyakit seperti **kanker** dan **Alzheimer**.
+
+    ---
+
+    ## Mengapa Komputasional?
+
+    | Metode | Biaya | Waktu | Skalabilitas |
+    |--------|-------|-------|--------------|
+    | Spektrometri Massa | Sangat Mahal | Lama | Terbatas |
+    | 1D-CNN (model ini) | Efisien | Cepat | Skala Besar |
+
+    ---
+
+    ## Arsitektur 1D-CNN
+    """)
+
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        st.markdown("""
+        ```
+        Input (31 × 20)
+            ↓
+        Conv1D (64 filter, kernel=3) + ReLU
+            ↓
+        MaxPooling1D (pool=2)
+            ↓
+        Conv1D (128 filter, kernel=3) + ReLU
+            ↓
+        MaxPooling1D (pool=2)
+            ↓
+        Flatten
+            ↓
+        Dense (64) + ReLU + Dropout (0.3)
+            ↓
+        Dense (1) + Sigmoid
+            ↓
+        Output: Probabilitas [0, 1]
+        ```
+        """)
+    with col2:
+        st.markdown("""
+        **Parameter model:**
+        - Total params: **86,081**
+        - Input shape: **(31, 20)**
+        - Output: **biner [0,1]**
+
+        **Training:**
+        - Dataset: dbPTM
+        - Sampel: 250,000
+        - Optimizer: Adam
+        - Loss: Binary CE
+        - Early Stopping: Aktif
+        """)
+
+    st.divider()
+    st.markdown("""
+    ## Cara Kerja
+
+    1. **Input**: Jendela 31 asam amino berpusat pada residu Serine target, diencode sebagai matriks One-Hot (31 × 20)
+    2. **Conv1D**: Filter bergerak sepanjang sekuens mendeteksi motif lokal yang berkaitan dengan PTM
+    3. **ReLU**: Menambahkan non-linearitas agar model belajar pola biologis yang kompleks
+    4. **MaxPooling**: Mengambil fitur terpenting, mengurangi dimensi, mencegah overfitting
+    5. **Dense + Sigmoid**: Menghasilkan probabilitas 0–1 — mendekati 1 = situs PTM
+
+    ---
+
+    ## Dataset
+
+    **dbPTM** — https://biomics.lab.nycu.edu.tw/dbPTM/download.php
+
+    ---
+    """)
+    st.caption("Kelompok 5 — Final Project Bioinformatika | Dataset: dbPTM")
+
+
+# ============================================================
+# HALAMAN: PREDIKSI PTM
+# ============================================================
+elif page == "Prediksi PTM":
     st.markdown("<h1 class='main-title'>ProMod AI</h1>", unsafe_allow_html=True)
     st.markdown("<p class='main-tagline'>Intelligent PTM Site Prediction with 1D-CNN</p>", unsafe_allow_html=True)
 
@@ -989,91 +1079,6 @@ elif page == "Evaluasi Model":
         "Support": [40000, 10000, 50000, 50000],
     }
     st.dataframe(pd.DataFrame(report_data), use_container_width=True, hide_index=True)
-
-
-# ============================================================
-# HALAMAN 3: TENTANG MODEL
-# ============================================================
-elif page == "Tentang Model":
-    st.title("Tentang Model")
-
-    st.markdown("""
-    ## Post-Translational Modification (PTM)
-
-    **PTM** adalah perubahan kimiawi pada protein setelah proses translasi oleh ribosom.
-    Salah satu jenis PTM yang paling umum adalah **fosforilasi** — penambahan gugus fosfat
-    pada residu asam amino tertentu (Serine, Threonine, atau Tyrosine).
-
-    Fosforilasi berperan sebagai *sakelar biologis* yang mengatur sinyal seluler dan terlibat
-    dalam berbagai penyakit seperti **kanker** dan **Alzheimer**.
-
-    ---
-
-    ## Mengapa Komputasional?
-
-    | Metode | Biaya | Waktu | Skalabilitas |
-    |--------|-------|-------|--------------|
-    | Spektrometri Massa | Sangat Mahal | Lama | Terbatas |
-    | 1D-CNN (model ini) | Efisien | Cepat | Skala Besar |
-
-    ---
-
-    ## Arsitektur 1D-CNN
-    """)
-
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        st.markdown("""
-        ```
-        Input (31 × 20)
-            ↓
-        Conv1D (64 filter, kernel=3) + ReLU
-            ↓
-        MaxPooling1D (pool=2)
-            ↓
-        Conv1D (128 filter, kernel=3) + ReLU
-            ↓
-        MaxPooling1D (pool=2)
-            ↓
-        Flatten
-            ↓
-        Dense (64) + ReLU + Dropout (0.3)
-            ↓
-        Dense (1) + Sigmoid
-            ↓
-        Output: Probabilitas [0, 1]
-        ```
-        """)
-    with col2:
-        st.markdown("""
-        **Parameter model:**
-        - Total params: **86,081**
-        - Input shape: **(31, 20)**
-        - Output: **biner [0,1]**
-
-        **Training:**
-        - Dataset: dbPTM
-        - Sampel: 250,000
-        - Optimizer: Adam
-        - Loss: Binary CE
-        - Early Stopping: Aktif
-        """)
-
-    st.divider()
-    st.markdown("""
-    ## Cara Kerja
-
-    1. **Input**: Jendela 31 asam amino berpusat pada residu Serine target, diencode sebagai matriks One-Hot (31 × 20)
-    2. **Conv1D**: Filter bergerak sepanjang sekuens mendeteksi motif lokal yang berkaitan dengan PTM
-    3. **ReLU**: Menambahkan non-linearitas agar model belajar pola biologis yang kompleks
-    4. **MaxPooling**: Mengambil fitur terpenting, mengurangi dimensi, mencegah overfitting
-    5. **Dense + Sigmoid**: Menghasilkan probabilitas 0–1 — mendekati 1 = situs PTM
-
-    ---
-
-    ## Dataset
-
-    **dbPTM** — https://biomics.lab.nycu.edu.tw/dbPTM/download.php
 
     - Total entri: **1,615,054**
     - Situs Serine terverifikasi: **1,042,193**

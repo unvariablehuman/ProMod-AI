@@ -81,7 +81,7 @@ CUSTOM_CSS = """
        SIDEBAR — Refined & Elegant
        ======================================================== */
     [data-testid="stSidebar"] {
-        background-color: var(--sidebar-bg) !important;
+        background: linear-gradient(180deg, #F5F0EB 0%, #E8E3DD 100%) !important;
         border-right: 1px solid var(--border) !important;
         padding: 1.5rem 1rem !important;
         overflow-x: hidden !important;

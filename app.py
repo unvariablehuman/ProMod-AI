@@ -649,7 +649,7 @@ CUSTOM_CSS = """
 
 <!-- Floating Mascot -->
 <div class="cat-container">
-    <img src="https://i.pinimg.com/originals/6d/da/3f/6dda3f82322b902d1b1694432c5315e3.gif" width="120">
+    <img src="https://media.tenor.com/nthqT6mfB5gAAAAj/hearts-love.gif" width="100">
 </div>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)

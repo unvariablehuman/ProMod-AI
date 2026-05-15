@@ -1080,6 +1080,7 @@ elif page == "Evaluasi Model":
     }
     st.dataframe(pd.DataFrame(report_data), use_container_width=True, hide_index=True)
 
+    st.markdown("""
     - Total entri: **1,615,054**
     - Situs Serine terverifikasi: **1,042,193**
     - Sampel digunakan: **250,000** (50k positif + 200k negatif sintetis)

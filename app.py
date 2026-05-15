@@ -637,6 +637,10 @@ CUSTOM_CSS = """
         pointer-events: none;
     }
 
+    .cat-container img {
+        mix-blend-mode: screen; /* Membuat background hitam jadi transparan */
+    }
+
     @keyframes walk-cycle {
         0% { left: -100px; transform: scaleX(1); }
         45% { left: 110%; transform: scaleX(1); }

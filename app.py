@@ -624,7 +624,32 @@ CUSTOM_CSS = """
         border: none !important;
         padding: 0 !important;
     }
+
+    /* ========================================================
+       WALKING CAT ANIMATION
+       ======================================================== */
+    .cat-container {
+        position: fixed;
+        bottom: 0px;
+        left: -100px;
+        z-index: 99;
+        animation: walk-cycle 30s linear infinite;
+        pointer-events: none;
+    }
+
+    @keyframes walk-cycle {
+        0% { left: -100px; transform: scaleX(1); }
+        45% { left: 110%; transform: scaleX(1); }
+        50% { left: 110%; transform: scaleX(-1); }
+        95% { left: -100px; transform: scaleX(-1); }
+        100% { left: -100px; transform: scaleX(1); }
+    }
 </style>
+
+<!-- Floating Mascot -->
+<div class="cat-container">
+    <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnh6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6amZ6JmVwPXYxX2ludGVybmFsX2dpZl9ieV9pZCZjdD1z/3o7TKMGvVbXF9kR0vC/giphy.gif" width="80">
+</div>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
 
@@ -638,56 +663,13 @@ AA_TO_IDX   = {aa: i for i, aa in enumerate(AMINO_ACIDS)}
 N_AA        = len(AMINO_ACIDS)
 
 # ============================================================
-# DATABASE PROTEIN & PDB MAPPING
+# DATABASE PROTEIN CONTOH
 # ============================================================
-# Protein yang muncul sebagai TOMBOL di UI (Maksimal 3)
-CONTOH_PROTEIN_UI = {
-    "BRCA1": (
-        "MDLSALRVEEVQNVINAMQKILECPICLELIKEPVSTKCDHIFCKFCMLKLLNQKKGPSQCPLCKNDITKRSLQESTRFSQLVEELLKIICAFQLDTGLEYANSYNFAKKENNSPEHLKDEVSIIQSMGYRNRAKRLLQSEPENPSLQETSLSVQLSNLGTVRTLRTKQRIQPQKTSVYIELGSDSSEDTVNKATYCSVGDQELLQITPQGTRDEISLDSAKKAACEFSETDVTNTEHHQPSNNDLNTTEKRAAERHPEKYQGSSVSNLHVEPCGTNTHASSLQHENSSLLLTKDRMNVEKAEFCNKSKQPGLARSQHNRWAGSKETCNDRRTPSTEKKVDLNADPLCERKEWNKQKLPCSENPRDTEDVPWITLNSSIQKVNEWFSRSDELLGSDDSHDGESESNAKVADVLDVLNEVDEYSGSSEKIDLLASDPHEALICKSERVHSKSVESNIEDKIFGKTYRKKASLPNLSHVTENLIIGAFVTEPQIIQERPLTNKLKRKRRPTSGLHPEDFIKKADLAVQKTPEMINQGTNQTEQNGQVMNITNSGHENKTKGDSIQNEKNPNPIESLEKESAFKTKAEPISSSISNMETELNIHNKNAPKTNRLTKRKYPHTPKEIQRYKSYFKKGDKLGLPMKKEIQRYKSYFKKGDKLGLPMK",
-        "1JNX"
-    ),
-    "p53": (
-        "MEEPQSDPSVEPPLSQETFSDLWKLLPENN VLSPLPSQAMDDLMLSPD DIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQG SYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD",
-        "1TUP"
-    ),
-    "Tau Protein": (
-        "MAEPRQEFEVMEDHAGTYGLGDRKDQGGYTMHQDQEGDTDAGLKESPLQTPTEDGSEEPGSETSDAKSTPTAEDVTAPLVDEGAPGKQAAAQPHTEIPEGTTAEEAGIGDTPSLEDEAAGHVTQARMVSKSKDGTGSDDKKAKGADGKTKIATPRGAAPPGQKGQANATRIPAKTPPAPKTPPSSGEPPKSGDRSGYSSPGSPGTPGSRSRTPSLPTPPTREPKKVAVVRTPPKSPSSAKSRLQTAPVPMPDLKNVKSKIGSTENLKHQPGGGKVQIINKKLDLSNVQSKCGSKDNIKHVPGGGSVQIVYKPVDLSKVTSKCGSLGNIHHKPGGGQVEVKSEKLDFKDRVQSKIGSLDNITHVPGGGNKKIETHKLTFRENAKAKTDHGAEIVYKSPVVSGDTSPRHLSNVSSTGSIDMVDSPQLATLADEVSASLAKQGL",
-        "6HJW"
-    )
+CONTOH_PROTEIN = {
+    "BRCA1": "MDLSALRVEEVQNVINAMQKILECPICLELIKEPVSTKCDHIFCKFCMLKLLNQKKGPSQCPLCKNDITKRSLQESTRFSQLVEELLKIICAFQLDTGLEYANSYNFAKKENNSPEHLKDEVSIIQSMGYRNRAKRLLQSEPENPSLQETSLSVQLSNLGTVRTLRTKQRIQPQKTSVYIELGSDSSEDTVNKATYCSVGDQELLQITPQGTRDEISLDSAKKAACEFSETDVTNTEHHQPSNNDLNTTEKRAAERHPEKYQGSSVSNLHVEPCGTNTHASSLQHENSSLLLTKDRMNVEKAEFCNKSKQPGLARSQHNRWAGSKETCNDRRTPSTEKKVDLNADPLCERKEWNKQKLPCSENPRDTEDVPWITLNSSIQKVNEWFSRSDELLGSDDSHDGESESNAKVADVLDVLNEVDEYSGSSEKIDLLASDPHEALICKSERVHSKSVESNIEDKIFGKTYRKKASLPNLSHVTENLIIGAFVTEPQIIQERPLTNKLKRKRRPTSGLHPEDFIKKADLAVQKTPEMINQGTNQTEQNGQVMNITNSGHENKTKGDSIQNEKNPNPIESLEKESAFKTKAEPISSSISNMETELNIHNKNAPKTNRLTKRKYPHTPKEIQRYKSYFKKGDKLGLPMKKEIQRYKSYFKKGDKLGLPMK",
+    "p53": "MEEPQSDPSVEPPLSQETFSDLWKLLPENN VLSPLPSQAMDDLMLSPD DIEQWFTEDPGPDEAPRMPEAAPPVAPAPAAPTPAAPAPAPSWPLSSSVPSQKTYQG SYGFRLGFLHSGTAKSVTCTYSPALNKMFCQLAKTCPVQLWVDSTPPPGTRVRAMAIYKQSQHMTEVVRRCPHHERCSDSDGLAPPQHLIRVEGNLRVEYLDDRNTFRHSVVVPYEPPEVGSDCTTIHYNYMCNSSCMGGMNRRPILTIITLEDSSGNLLGRNSFEVRVCACPGRDRRTEEENLRKKGEPHHELPPGSTKRALPNNTSSSPQPKKKPLDGEYFTLQIRGRERFEMFRELNEALELKDAQAGKEPGGSRAHSSHLKSKKGQSTSRHKKLMFKTEGPDSD",
+    "Albumin": "MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCVADESAENCDKSLHTLFGDKLCTVATLRETYGEMADCCAKQEPERNECFLQHKDDNPNLPRLVRPEVDVMCTAFHDNEETFLKKYLYEIARRHPYFYAPELLFFAKRYKAAFTECCQAADKAACLLPKLDELRDEGKASSAKQRLKCASLQKFGERAFKAWAVARLSQRFPKAEFAEVSKLVTDLTKVHTECCHGDLLECADDRADLAKYICENQDSISSKLKECCEKPLLEKSHCIAEVENDEMPADLPSLAADFVESKDVCKNYAEAKDVFLGMFLYEYARRHPDYSVVLLLRLAKTYETTLEKCCAAADPHECYAKVFDEFKPLVEEPQNLIKQNCELFEQLGEYKFQNALLVRYTKKVPQVSTPTLVEVSRNLGKVGSKCCKHPEAKRMPCAEDYLSVVLNQLCVLHEKTPVSDRVTKCCTESLVNRRPCFSALEVDETYVPKEFNAETFTFHADICTLSEKERQIKKQTALVELVKHKPKATKEQLKAVMDDFAAFVEKCCKADDKETCFAEEGKKLVAASQAALGL"
 }
-
-# Database lengkap untuk deteksi otomatis (Kamus Pintar)
-SMART_PDB_MAPPING = {
-    **CONTOH_PROTEIN_UI,
-    "Insulin": (
-        "GIVEQCCTSICSLYQLENYCNFVNQHLCGSHLVEALYLVCGERGFFYTPKT",
-        "1TRZ"
-    ),
-    "Lysozyme": (
-        "KVFGRCELAAAMKRHGLDNYRGYSLGNWVCAAKFESNFNTQATNRNTDGSTDYGILQINSRWWCNDGRTPGSRNLCNIPCSALLSSDITASVNCAKKIVSDGNGMNAWVAWRNRCKGTDVQAWIRGCRL",
-        "1HEL"
-    ),
-    "Myoglobin": (
-        "MGLSDGEWQLVLNVWGKVEADIPGHGQEVLIRLFKGHPETLEKFDKFKHLKSEDEMKASEDLKKHGATVLTALGGILKKKGHHEAEIKPLAQSHATKHKIPVKYLEFISECIIQVLQSKHPGDFGADAQGAMNKALELFRKDMASNYKELGFQG",
-        "1MBO"
-    ),
-    "Albumin": (
-        "MKWVTFISLLFLFSSAYSRGVFRRDAHKSEVAHRFKDLGEENFKALVLIAFAQYLQQCPFEDHVKLVNEVTEFAKTCVADESAENCDKSLHTLFGDKLCTVATLRETYGEMADCCAKQEPERNECFLQHKDDNPNLPRLVRPEVDVMCTAFHDNEETFLKKYLYEIARRHPYFYAPELLFFAKRYKAAFTECCQAADKAACLLPKLDELRDEGKASSAKQRLKCASLQKFGERAFKAWAVARLSQRFPKAEFAEVSKLVTDLTKVHTECCHGDLLECADDRADLAKYICENQDSISSKLKECCEKPLLEKSHCIAEVENDEMPADLPSLAADFVESKDVCKNYAEAKDVFLGMFLYEYARRHPDYSVVLLLRLAKTYETTLEKCCAAADPHECYAKVFDEFKPLVEEPQNLIKQNCELFEQLGEYKFQNALLVRYTKKVPQVSTPTLVEVSRNLGKVGSKCCKHPEAKRMPCAEDYLSVVLNQLCVLHEKTPVSDRVTKCCTESLVNRRPCFSALEVDETYVPKEFNAETFTFHADICTLSEKERQIKKQTALVELVKHKPKATKEQLKAVMDDFAAFVEKCCKADDKETCFAEEGKKLVAASQAALGL",
-        "1AO6"
-    )
-}
-
-def find_pdb_match(sequence):
-    """Mencoba mencocokkan sekuens dengan database untuk mendapatkan ID PDB."""
-    seq_clean = sequence.upper().replace(" ", "").strip()
-    if not seq_clean:
-        return None
-        
-    for nama, (ref_seq, pdb_id) in SMART_PDB_MAPPING.items():
-        ref_clean = ref_seq.upper().replace(" ", "").strip()
-        if seq_clean in ref_clean or ref_clean in seq_clean:
-            return pdb_id
-    return None
 
 # ============================================================
 # FUNGSI UTAMA
@@ -781,14 +763,6 @@ def render_sequence_highlight(sequence: str, ptm_positions: set, target_aa: str)
             html += f"<span style='color:#A89F91; padding:2px 1px;'>{aa}</span>"
     html += "</div>"
     return html
-
-
-def render_protein_3d(pdb_id):
-    view = py3Dmol.view(query=f'pdb:{pdb_id}')
-    view.setStyle({'cartoon': {'color': 'spectrum'}})
-    view.addSurface(py3Dmol.SES, {'opacity': 0.1, 'color': 'white'})
-    view.spin(True)
-    showmol(view, height=400, width=800)
 
 
 # ============================================================
@@ -923,16 +897,13 @@ elif page == "Prediksi PTM":
 
     if "protein_seq" not in st.session_state:
         st.session_state.protein_seq = ""
-    if "selected_pdb" not in st.session_state:
-        st.session_state.selected_pdb = None
 
     st.markdown("#### Coba dengan protein contoh:")
     cols_ex = st.columns(3)
-    for idx, (nama, (seq, pdb)) in enumerate(CONTOH_PROTEIN_UI.items()):
+    for idx, (nama, seq) in enumerate(CONTOH_PROTEIN.items()):
         with cols_ex[idx]:
             if st.button(f"{nama}", use_container_width=True, key=f"btn_{idx}"):
                 st.session_state.protein_seq = seq
-                st.session_state.selected_pdb = pdb
                 st.session_state.main_input = seq
                 st.rerun()
 
@@ -967,11 +938,6 @@ elif page == "Prediksi PTM":
         key="main_input"
     )
     
-    # AUTO-DETECT PDB if input changes manually
-    if sequence_input != st.session_state.protein_seq:
-        match_pdb = find_pdb_match(sequence_input)
-        st.session_state.selected_pdb = match_pdb
-            
     st.session_state.protein_seq = sequence_input
 
     col1, col2 = st.columns([1, 4])
@@ -986,7 +952,6 @@ elif page == "Prediksi PTM":
             st.warning(f"Tidak ditemukan residu {target_aa} dalam sekuens.")
         else:
             analysis_placeholder = st.empty()
-
             messages = [
                 "Initializing 1D-CNN Model...",
                 "Encoding protein sequence...",
@@ -1042,12 +1007,7 @@ elif page == "Prediksi PTM":
             col_leg1.markdown("🟢 Situs PTM terdeteksi")
             col_leg2.markdown("🔴 Bukan situs PTM")
 
-            pdb_id_to_show = st.session_state.selected_pdb
-            if pdb_id_to_show:
-                st.divider()
-                st.markdown(f"#### 🧊 Visualisasi Struktur 3D ({pdb_id_to_show})")
-                st.info("Gunakan mouse untuk memutar, zoom, atau menggeser struktur protein.")
-                render_protein_3d(pdb_id_to_show)
+            st.markdown("<br><br>", unsafe_allow_html=True)
 
             if not df_hasil.empty:
                 st.markdown("#### Skor Probabilitas per Posisi Serine")

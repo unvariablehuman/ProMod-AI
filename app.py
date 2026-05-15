@@ -754,9 +754,6 @@ with st.sidebar:
         label_visibility="collapsed"
     )
 
-    # Push content to bottom
-    st.markdown("<div style='height: 40vh;'></div>", unsafe_allow_html=True)
-    
     st.markdown("""
     <hr style='border-top: 1px dashed #bbb;'>
     <div class='sidebar-footer'>

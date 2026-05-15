@@ -785,8 +785,8 @@ with st.sidebar:
 
     st.markdown("""
     <div class='sidebar-footer'>
-        <b>Kelompok 5 — Computational Biology</b><br>
-        BINUS University © 2024
+        <b>LC01 - Kelompok 5 (Computational Biology)</b><br>
+        BINUS University © 2026
     </div>
     """, unsafe_allow_html=True)
 

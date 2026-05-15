@@ -84,6 +84,18 @@ CUSTOM_CSS = """
         background-color: var(--sidebar-bg) !important;
         border-right: 1px solid var(--border) !important;
         padding: 1.5rem 1rem !important;
+        overflow-x: hidden !important;
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    [data-testid="stSidebar"]::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    /* Hide scrollbar for IE, Edge and Firefox */
+    [data-testid="stSidebar"] {
+        -ms-overflow-style: none !important;  /* IE and Edge */
+        scrollbar-width: none !important;  /* Firefox */
     }
 
     [data-testid="stSidebar"] .stMarkdown {

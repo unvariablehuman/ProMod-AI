@@ -930,6 +930,19 @@ elif page == "Prediksi PTM":
         help="Gunakan sekuens dari UniProt untuk hasil terbaik",
         key="main_input"
     )
+    
+    # RESET selected_pdb if input changes manually
+    if sequence_input != st.session_state.protein_seq:
+        # Check if the new input matches any of the examples
+        match_found = False
+        for seq, pdb in CONTOH_PROTEIN.values():
+            if sequence_input == seq:
+                st.session_state.selected_pdb = pdb
+                match_found = True
+                break
+        if not match_found:
+            st.session_state.selected_pdb = None
+            
     st.session_state.protein_seq = sequence_input
 
     col1, col2 = st.columns([1, 4])

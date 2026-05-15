@@ -94,18 +94,37 @@ CUSTOM_CSS = """
 
     [data-testid="stSidebar"] h2 {
         text-align: center !important;
-        font-size: 1.8rem !important;
+        font-size: 2.4rem !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.05em !important;
         margin-bottom: 0px !important;
-        line-height: 1.2 !important;
+        line-height: 1 !important;
+        color: var(--text-primary) !important;
+    }
+
+    .sidebar-brand {
+        margin-top: 2rem !important;
+        margin-bottom: 0.5rem !important;
     }
 
     .sidebar-tagline {
         text-align: center !important;
         font-size: 0.85rem !important;
-        color: var(--text-secondary) !important;
+        font-weight: 500 !important;
+        color: var(--primary) !important;
         margin-top: 0px !important;
-        margin-bottom: 1rem !important;
+        margin-bottom: 2rem !important;
         display: block !important;
+        opacity: 0.8;
+    }
+
+    .sidebar-footer {
+        border-top: 1.5px dashed var(--border) !important;
+        padding-top: 1.5rem !important;
+        margin-top: 2rem !important;
+        text-align: center !important;
+        font-size: 0.8rem !important;
+        color: var(--text-muted) !important;
     }
 
     [data-testid="stSidebar"] .stRadio > div {
@@ -722,8 +741,11 @@ def render_protein_3d(pdb_id):
 # SIDEBAR
 # ============================================================
 with st.sidebar:
+    st.markdown("<div class='sidebar-brand'>", unsafe_allow_html=True)
     st.markdown("## ProMod AI")
-    st.markdown("<span class='sidebar-tagline'>Kelompok 5 — Bioinformatika<br>Intelligent PTM Site Prediction with 1D-CNN</span>", unsafe_allow_html=True)
+    st.markdown("<span class='sidebar-tagline'>Intelligent PTM Site Prediction with 1D-CNN</span>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
     st.divider()
 
     page = st.radio(
@@ -731,6 +753,17 @@ with st.sidebar:
         ["Deskripsi Model", "Prediksi PTM", "Evaluasi Model"],
         label_visibility="collapsed"
     )
+
+    # Push content to bottom
+    st.markdown("<div style='height: 40vh;'></div>", unsafe_allow_html=True)
+    
+    st.markdown("""
+    <hr style='border-top: 1px dashed #bbb;'>
+    <div class='sidebar-footer'>
+        <b>Kelompok 5 — Bioinformatika</b><br>
+        BINUS University © 2024
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # ============================================================

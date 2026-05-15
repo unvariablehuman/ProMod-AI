@@ -638,15 +638,12 @@ CUSTOM_CSS = """
     }
 
     .cat-container img {
-        mix-blend-mode: screen; /* Membuat background hitam jadi transparan */
+        mix-blend-mode: multiply; /* Membuat background putih jadi transparan */
     }
 
     @keyframes walk-cycle {
-        0% { left: -100px; transform: scaleX(1); }
-        45% { left: 110%; transform: scaleX(1); }
-        50% { left: 110%; transform: scaleX(-1); }
-        95% { left: -100px; transform: scaleX(-1); }
-        100% { left: -100px; transform: scaleX(1); }
+        0% { left: -150px; }
+        100% { left: 110%; }
     }
 </style>
 

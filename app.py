@@ -87,15 +87,21 @@ CUSTOM_CSS = """
         overflow-x: hidden !important;
     }
 
-    /* Hide scrollbar for Chrome, Safari and Opera */
-    [data-testid="stSidebar"]::-webkit-scrollbar {
+    /* Aggressively hide all scrollbars and arrows in sidebar */
+    [data-testid="stSidebar"] * {
+        -ms-overflow-style: none !important;
+        scrollbar-width: none !important;
+    }
+    
+    [data-testid="stSidebar"] *::-webkit-scrollbar {
         display: none !important;
+        width: 0 !important;
+        height: 0 !important;
     }
 
-    /* Hide scrollbar for IE, Edge and Firefox */
-    [data-testid="stSidebar"] {
-        -ms-overflow-style: none !important;  /* IE and Edge */
-        scrollbar-width: none !important;  /* Firefox */
+    /* Hide the specific scroll indicators/arrows Streamlit adds */
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        overflow: hidden !important;
     }
 
     [data-testid="stSidebar"] .stMarkdown {

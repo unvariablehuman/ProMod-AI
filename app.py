@@ -115,8 +115,8 @@ CUSTOM_CSS = """
     }
 
     .sidebar-brand {
-        margin-top: 2rem !important;
-        margin-bottom: 0.5rem !important;
+        margin-top: 1rem !important;
+        margin-bottom: 0px !important;
     }
 
     .sidebar-tagline {
@@ -132,8 +132,8 @@ CUSTOM_CSS = """
 
     .sidebar-footer {
         border-top: 1.5px dashed var(--border) !important;
-        padding-top: 1.5rem !important;
-        margin-top: 2rem !important;
+        padding-top: 1rem !important;
+        margin-top: 1rem !important;
         text-align: center !important;
         font-size: 0.8rem !important;
         color: var(--text-muted) !important;
@@ -767,7 +767,6 @@ with st.sidebar:
     )
 
     st.markdown("""
-    <hr style='border-top: 1px dashed #bbb;'>
     <div class='sidebar-footer'>
         <b>Kelompok 5 — Bioinformatika</b><br>
         BINUS University © 2024
